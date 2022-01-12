@@ -85,9 +85,12 @@ func loadTrack(path string) (beep.StreamSeekCloser, beep.Format) {
 	return streamer, format
 }
 
+var lastTrack string
+
 func main() {
 	s := gocron.NewScheduler(time.UTC)
-	streamer, format := loadTrack(getCurrentTrack())
+	lastTrack = getCurrentTrack()
+	streamer, format := loadTrack(lastTrack)
 
 	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
 
@@ -99,9 +102,12 @@ func main() {
 		done <- true
 	})))
 
-	s.Every(1).Hour().Do(func() {
-		streamer, _ = loadTrack(getCurrentTrack())
-		queue.SetNext(streamer)
+	s.Every(2).Minutes().Do(func() {
+		newTrack := getCurrentTrack()
+		if newTrack != lastTrack {
+			streamer, _ = loadTrack(getCurrentTrack())
+			queue.SetNext(streamer)
+		}
 	})
 
 	s.StartAsync()
