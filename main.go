@@ -100,16 +100,11 @@ func main() {
 	})))
 
 	s.Every(1).Hour().Do(func() {
-		streamer, format = loadTrack(getCurrentTrack())
+		streamer, _ = loadTrack(getCurrentTrack())
 		queue.SetNext(streamer)
 	})
 
 	s.StartAsync()
 
-	for {
-		select {
-		case <-done:
-			return
-		}
-	}
+	<-done
 }
