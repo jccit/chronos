@@ -107,6 +107,7 @@ func main() {
 		if newTrack != lastTrack {
 			streamer, _ = loadTrack(getCurrentTrack())
 			queue.SetNext(streamer)
+			lastTrack = newTrack
 		}
 	})
 
